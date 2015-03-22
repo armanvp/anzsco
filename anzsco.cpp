@@ -56,7 +56,7 @@ int main (int argc, char **argv) {
     check_return_code(&ret);
 
     //Parse Data
-    parse_code(user.buffer);
+    //parse_code(user.buffer);
     curl_easy_cleanup(curl);
 
   }else{
@@ -91,84 +91,4 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
   user->buffer[user->size] = 0;
 
   return realsize;
-}
-
-char *search(char *buffer, char *start, char *end, char *str) {
-
-  size_t strln;
-
-  char *sdel = strstr(buffer, start);
-  if(sdel == NULL)
-	return NULL;
-	
-  char *edel = strstr(sdel, end);
-  if(edel == NULL)
-	return NULL;
-	
-  strln = edel - sdel + 1;
-  int offset = strlen(start);
-  sdel+=offset;
-  strncpy(str,sdel,strln - offset - 1);
-  str[strln] = '\0';
-  
-  return str;
-
-}
-
-void check_state(char*buffer, char *state) {
-
-  char txt[50] = "";
-  struct mystring thestring;
-  
-  thestring.size = 1;
-  thestring.string = (char *) malloc(1);
-  
-  strcat(txt,state);
-  strcat(txt,"</td>");
-
-  parse(buffer,txt,"</td>",&thestring);
-  parse(thestring.string,"alt='","'",&thestring);
-  printf("%s: %s\n",state,thestring.string);
-  
-  free(thestring.string);
-
-}
-
-void parse_code(char *buffer) { 
-
-//<td>Sydney</td><td class='centre'><img src='https://www.anzscosearch.com/wp-content/uploads/2013/09/no16.png' alt='Occupation NOT Eligible' title='Occupation NOT Eligible'></td>
-
-  check_state(buffer,"Adelaide");
-  check_state(buffer,"Canberra");
-  check_state(buffer,"Sydney");
-  check_state(buffer,"Darwin");
-  check_state(buffer,"Brisbane");
-  check_state(buffer,"Hobart");
-  check_state(buffer,"Melbourne");
-  check_state(buffer,"Perth");
-  
-}
-
-void parse(char *buffer, char *sdel, char *edel,struct mystring *string) {
-	
-	size_t sdel_len = strlen(sdel);
-	char *start = strstr(buffer,sdel);
-	size_t offset_start = (size_t) start - (size_t) buffer + sdel_len;
-	
-	buffer += offset_start;
-
-	char *nd = strstr(buffer,edel);
-	
-	size_t len = (size_t)nd - (size_t)buffer;
-	
-	string->string = realloc(string->string, len+1);
-	if(string->string != NULL) {
-		string->size = len + 1;
-		strncpy(string->string,buffer,len);
-		string->string[len] = '\0';
-	}
-	
-	//strncpy(result,buffer,len);
-	//result[len] = '\0';
-	
 }
