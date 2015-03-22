@@ -1,7 +1,9 @@
 #include <stdlib.h> 
-#include <stdio.h> 
-#include <string.h> 
+#include <iostream> 
+#include <string> 
 #include <curl/curl.h>
+
+using namespace std;
 
 #define ANZSCOURL "https://www.anzscosearch.com/wp-admin/admin-ajax.php?action=get_data_anzsco&fromURL=true&anzsco=261312"
 #define PROXY NULL
@@ -16,7 +18,7 @@ void check_return_code(CURLcode *ret); void parse_code(char *buffer);
 void parse(char *buffer, char *sdel, char *edel,struct mystring *string);
 
 struct Userdata {
-  char *buffer;
+  string buffer;
   size_t size;
 };
 
@@ -27,7 +29,6 @@ int main (int argc, char **argv) {
   CURLcode ret;
   struct Userdata user;
   //Initialize Userdata
-  //user.buffer = malloc(1);
   user.size = 0;
   //Start a libcurl easy session
   curl = curl_easy_init();
@@ -56,6 +57,8 @@ int main (int argc, char **argv) {
     check_return_code(&ret);
 
     //Parse Data
+    
+    cout<<user.buffer;
     //parse_code(user.buffer);
     curl_easy_cleanup(curl);
 
@@ -63,7 +66,7 @@ int main (int argc, char **argv) {
     fprintf(stderr, "Error: %s\n","Error initializing curl\n");
     return EXIT_FAILURE;
   }
-  free(user.buffer);
+  
   return EXIT_SUCCESS;
 }
 /*
@@ -80,15 +83,8 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
 
   size_t realsize = size * nmemb;
   struct Userdata *user = (struct Userdata *) userdata;
-  //user->buffer = realloc(user->buffer, user->size + realsize + 1);
-  if(user->buffer == NULL) {
-    printf("Not enough memory\n");
-    return 0;
-  }
 
-  memcpy(&(user->buffer[user->size]), ptr, realsize);
-  user->size += realsize;
-  user->buffer[user->size] = 0;
+  user->buffer = user->buffer + ptr;
 
   return realsize;
 }
