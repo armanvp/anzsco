@@ -27,7 +27,7 @@ int main (int argc, char **argv) {
   CURLcode ret;
   struct Userdata user;
   //Initialize Userdata
-  user.buffer = malloc(1);
+  //user.buffer = malloc(1);
   user.size = 0;
   //Start a libcurl easy session
   curl = curl_easy_init();
@@ -80,7 +80,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
 
   size_t realsize = size * nmemb;
   struct Userdata *user = (struct Userdata *) userdata;
-  user->buffer = realloc(user->buffer, user->size + realsize + 1);
+  //user->buffer = realloc(user->buffer, user->size + realsize + 1);
   if(user->buffer == NULL) {
     printf("Not enough memory\n");
     return 0;
