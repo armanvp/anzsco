@@ -6,7 +6,7 @@
 using namespace std;
 
 #define ANZSCOURL "https://www.anzscosearch.com/wp-admin/admin-ajax.php?action=get_data_anzsco&fromURL=true&anzsco=261312"
-#define PROXY "hkgproxy:8080"
+#define PROXY NULL
 
 struct mystring {
 	size_t size;
