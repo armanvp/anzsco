@@ -6,7 +6,7 @@
 using namespace std;
 
 #define ANZSCOURL "https://www.anzscosearch.com/wp-admin/admin-ajax.php?action=get_data_anzsco&fromURL=true&anzsco=261312"
-#define PROXY NULL
+#define PROXY "hkgproxy:8080"
 
 struct mystring {
 	size_t size;
@@ -16,6 +16,8 @@ struct mystring {
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata); 
 void check_return_code(CURLcode *ret); void parse_code(char *buffer); 
 void parse(char *buffer, char *sdel, char *edel,struct mystring *string);
+string check_status(string raw, string state);
+void check(string buff);
 
 struct Userdata {
   string buffer;
@@ -57,9 +59,8 @@ int main (int argc, char **argv) {
     check_return_code(&ret);
 
     //Parse Data
-    
-    cout<<user.buffer;
-    //parse_code(user.buffer);
+    check(user.buffer);
+	
     curl_easy_cleanup(curl);
 
   }else{
@@ -87,4 +88,52 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
   user->buffer = user->buffer + ptr;
 
   return realsize;
+}
+
+string check_status(string raw, string state) {
+
+	string ret;
+	size_t pos, pos_end, pos_off;
+
+	/* Find initial identifier */
+	string needle = "<td>" + state + "</td>";
+	pos = raw.find(needle);
+	
+	/* Identifier not found */
+	if(pos == string::npos) {
+		ret = "Unable to parse " + state;
+		return ret;
+	}
+	
+	/* Find status */
+	needle = "alt='";
+	pos_off = needle.size();
+	pos = raw.find(needle,pos);
+	
+	/* Identifier not found */
+	if(pos == string::npos) {
+		ret = "Unable to parse " + state;
+		return ret;
+	}
+	
+	/* Find status end */
+	needle = "' ";
+	pos_end = raw.find(needle,pos+pos_off);
+	
+	return state + " : " + raw.substr(pos+pos_off,pos_end-pos-pos_off);
+	
+}
+
+void check(string buff) {
+
+	cout<<"ANZSCO Status for Developer Programer : 261312"<<endl<<endl;
+	cout<<check_status(buff, "Australian Capital Territory")<<endl;
+	cout<<check_status(buff, "New South Wales")<<endl;
+	cout<<check_status(buff, "Northern Territory")<<endl;
+	cout<<check_status(buff, "Queensland")<<endl;
+	cout<<check_status(buff, "South Australia")<<endl;
+	cout<<check_status(buff, "Tasmania")<<endl;
+	cout<<check_status(buff, "Victoria")<<endl;
+	cout<<check_status(buff, "Western Australia")<<endl;
+	
 }
