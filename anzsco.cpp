@@ -5,8 +5,9 @@
 
 using namespace std;
 
-#define ANZSCOURL "https://www.anzscosearch.com/wp-admin/admin-ajax.php?action=get_data_anzsco&fromURL=true&anzsco=261312"
+#define ANZSCOURL "https://www.anzscosearch.com/wp-admin/admin-ajax.php?action=get_data_anzsco&fromURL=true&anzsco="
 #define PROXY NULL
+#define DEF_ANZSCO "261312"
 
 struct mystring {
 	size_t size;
@@ -17,21 +18,39 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata);
 void check_return_code(CURLcode *ret); void parse_code(char *buffer); 
 void parse(char *buffer, char *sdel, char *edel,struct mystring *string);
 string check_status(string raw, string state);
-void check(string buff);
+void check(string buff, string *anzsco);
 
 struct Userdata {
   string buffer;
   size_t size;
 };
 
-
-
 int main (int argc, char **argv) {
+  string anzsco;
+  string url;
+
   CURL *curl;
   CURLcode ret;
   struct Userdata user;
   //Initialize Userdata
   user.size = 0;
+
+  //Get parameters
+  if(argc == 2) {
+    anzsco = argv[1];
+    for(int i=0; i<strlen(argv[1]); i++) {
+      if(!isdigit(argv[1][i])) {
+        anzsco = "";
+        break;
+      }
+    }
+  }
+
+  if(!anzsco.length())
+    anzsco = DEF_ANZSCO;
+
+  url = ANZSCOURL + anzsco;
+
   //Start a libcurl easy session
   curl = curl_easy_init();
   if(curl) {
@@ -43,7 +62,7 @@ int main (int argc, char **argv) {
     }
 
     //Set URL
-    ret = curl_easy_setopt(curl, CURLOPT_URL, ANZSCOURL);
+    ret = curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     check_return_code(&ret);
 
     //Set Write Callback Function
@@ -59,7 +78,7 @@ int main (int argc, char **argv) {
     check_return_code(&ret);
 
     //Parse Data
-    check(user.buffer);
+    check(user.buffer,&anzsco);
 	
     curl_easy_cleanup(curl);
 
@@ -124,9 +143,9 @@ string check_status(string raw, string state) {
 	
 }
 
-void check(string buff) {
+void check(string buff, string *anzsco) {
 
-	cout<<"ANZSCO Status for Developer Programer : 261312"<<endl<<endl;
+	cout<<"ANZSCO Status for : "<<*anzsco<<endl<<endl;
 	cout<<check_status(buff, "Australian Capital Territory")<<endl;
 	cout<<check_status(buff, "New South Wales")<<endl;
 	cout<<check_status(buff, "Northern Territory")<<endl;
